@@ -2,9 +2,11 @@ require 'net/http'
 require 'json'
 
 class NomicsClient
-  def list(ticker_names)
+  def list(ticker_names, fields)
     uri = URI("#{api_url}/currencies/ticker?key=#{api_key}&ids=#{ticker_names.join(",")}")
-    JSON.parse(Net::HTTP.get(uri))
+    JSON.parse(Net::HTTP.get(uri)).map do |currency|
+      currency.delete_if { |k, _| !fields.nil? && !fields.include?(k) }
+    end
   end
 
   private
