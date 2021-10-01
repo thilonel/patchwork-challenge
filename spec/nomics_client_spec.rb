@@ -1,11 +1,12 @@
 RSpec.describe NomicsClient do
   describe "#list" do
-    subject(:list) { client.list(ticker_names, fields) }
+    subject(:list) { client.list(tickers, fields: fields, convert: convert) }
     let(:client) { described_class.new }
     let(:fields) { nil }
+    let(:convert) { nil }
 
     context "when passing valid ticker names" do
-      let(:ticker_names) { %w[BTC, ETH] }
+      let(:tickers) { %w[BTC, ETH] }
 
       it "returns everything from the API for that cryptocurrency" do
         expect(list.size).to eq 2
@@ -13,7 +14,7 @@ RSpec.describe NomicsClient do
         expect(list[1]["currency"]).to eq "ETH"
       end
 
-      context "when also passing the fields argument" do
+      context "when passing the fields argument" do
         let(:fields) { %w[circulating_supply max_supply name symbol price] }
 
         it "filters the response, returning only the specified fields" do
@@ -31,6 +32,14 @@ RSpec.describe NomicsClient do
           expect(list[1]["circulating_supply"].to_i >= 117_753_182).to eq true
           expect(list[1]["symbol"]).to eq "ETH"
           expect(list[1]["price"].to_f > 0.0).to eq true
+        end
+      end
+      
+      context "when passing the convert argument" do
+        it "returns all the monetary values in the specified fiat currency" do
+          price_in_usd = client.list(["BTC"])[0]["price"]
+          price_in_zar = client.list(["BTC"], convert: "ZAR")[0]["price"]
+          expect(price_in_usd).not_to eq price_in_zar
         end
       end
     end

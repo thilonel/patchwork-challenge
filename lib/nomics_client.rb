@@ -2,9 +2,9 @@ require 'net/http'
 require 'json'
 
 class NomicsClient
-  def list(ticker_names, fields)
+  def list(tickers, fields: nil, convert: "USD")
     sleep 1
-    uri = URI("#{api_url}/currencies/ticker?key=#{api_key}&ids=#{ticker_names.join(",")}")
+    uri = URI("#{api_url}/currencies/ticker?key=#{api_key}&ids=#{tickers.join(",")}&convert=#{convert}")
     JSON.parse(Net::HTTP.get(uri)).map do |currency|
       currency.delete_if { |k, _| !fields.nil? && !fields.include?(k) }
     end
