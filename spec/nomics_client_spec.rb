@@ -10,6 +10,7 @@ RSpec.describe NomicsClient do
 
       it "returns everything from the API for that cryptocurrency" do
         expect(list.size).to eq 2
+        list.sort_by!{ |currency_info| currency_info["id"] }
         expect(list[0]["currency"]).to eq "BTC"
         expect(list[1]["currency"]).to eq "ETH"
       end
@@ -19,6 +20,8 @@ RSpec.describe NomicsClient do
 
         it "filters the response, returning only the specified fields" do
           expect(list.size).to eq 2
+          list.sort_by!{ |currency_info| currency_info["name"] }
+
           expect(list[0]["currency"]).to eq nil
           expect(list[0]["name"]).to eq "Bitcoin"
           expect(list[0]["max_supply"]).to eq "21000000"
@@ -41,6 +44,20 @@ RSpec.describe NomicsClient do
           price_in_zar = client.list(["BTC"], convert: "ZAR")[0]["price"]
           expect(price_in_usd).not_to eq price_in_zar
         end
+      end
+    end
+  end
+  
+  describe "#price" do
+    subject(:price) { client.price(of: currency, as: target_currency) }
+    let(:client) { described_class.new }
+
+    context "when passing valid arguments" do
+      let(:currency) { "BTC" }
+      let(:target_currency) { "ETH" }
+
+      it "returns the price of the currency expressed in the target_currency using their dollar value" do
+        expect(price).to be_between(1, 30)
       end
     end
   end
