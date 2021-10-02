@@ -8,8 +8,14 @@ class NomicsClient
 
   def list(tickers, fields: nil, convert: "USD")
     uri = build_uri(CURRENCIES_TICKER_PATH, query_params: { "ids" => tickers.join(","), "convert" => convert })
-    response = Net::HTTP.get(uri)
-    response_json = JSON.parse(response)
+
+    response = nil
+    10.times do |i|
+      response = Net::HTTP.get_response(uri)
+      break if response.code != "429" # Too Many Request
+      sleep 1 # API Rate limit for free accounts is 1 request / sec
+    end
+    response_json = JSON.parse(response.body)
 
     if fields.nil?
       response_json
