@@ -19,17 +19,20 @@ class NomicsClient
     uri = build_uri(CURRENCIES_TICKER_PATH, query_params: { "ids" => tickers.join(","), "convert" => convert })
 
     response = nil
-    10.times do |i|
+    10.times do
       response = Net::HTTP.get_response(uri)
       break if response.code != "429" # Too Many Request
       sleep 1 # API Rate limit for free accounts is 1 request / sec
     end
-    response_json = JSON.parse(response.body)
+
+    raise Error.new(response.code, response.body) if response.code != "200"
+
+    currencies = JSON.parse(response.body)
 
     if fields.nil?
-      response_json
+      currencies
     else
-      response_json.map { |currency_info| currency_info.delete_if { |field_name, _| !fields.include?(field_name) } }
+      currencies.map { |currency| currency.delete_if { |field_name, _| !fields.include?(field_name) } }
     end
   end
 
@@ -49,5 +52,14 @@ class NomicsClient
   def build_uri(resource_path, query_params: {})
     query_params["key"] = api_key
     URI::HTTPS.build(host: api_host, path: "/v1/#{resource_path}", query: URI.encode_www_form(query_params))
+  end
+
+  class Error < StandardError
+    attr_reader :code, :message
+
+    def initialize(code, message)
+      @code = code
+      @message = message
+    end
   end
 end

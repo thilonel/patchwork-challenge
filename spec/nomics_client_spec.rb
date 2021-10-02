@@ -106,6 +106,24 @@ RSpec.describe NomicsClient do
           price_in_zar = client.list(["BTC"], convert: "ZAR")[0]["price"]
           expect(price_in_usd).not_to eq price_in_zar
         end
+
+        context "and the convert argument is invalid" do
+          let(:convert) { "ASDF" }
+
+          it "makes me want to buy" do
+            # Maybe we should validate here and raise an error
+            expect(list[0]["id"]).to eq "BTC"
+            expect(list[0]["price"].to_f).to eq 0.0
+          end
+        end
+      end
+    end
+
+    context "when the request returns with anything but HTTP OK" do
+      let(:client) { described_class.new(api_key: "notgood")}
+
+      it "raises an error" do
+        expect { list }.to raise_error(NomicsClient::Error)
       end
     end
   end
@@ -120,6 +138,14 @@ RSpec.describe NomicsClient do
 
       it "returns the price of the currency expressed in the target_currency using their dollar value" do
         expect(price).to be_between(1, 30)
+      end
+
+      context "when the request returns with anything but HTTP OK" do
+        let(:client) { described_class.new(api_key: "notgood")}
+
+        it "raises an error" do
+          expect { price }.to raise_error(NomicsClient::Error)
+        end
       end
 
       include_examples "rate limit handling" do
