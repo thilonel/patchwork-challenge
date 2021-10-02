@@ -1,4 +1,7 @@
 RSpec.describe NomicsClient do
+  # The API has a rate limit of 1 request per second.
+  after(:each) { sleep 1 }
+
   describe "#list" do
     subject(:list) { client.list(tickers, fields: fields, convert: convert) }
     let(:client) { described_class.new }
@@ -41,6 +44,7 @@ RSpec.describe NomicsClient do
       context "when passing the convert argument" do
         it "returns all the monetary values in the specified fiat currency" do
           price_in_usd = client.list(["BTC"])[0]["price"]
+          sleep(1)
           price_in_zar = client.list(["BTC"], convert: "ZAR")[0]["price"]
           expect(price_in_usd).not_to eq price_in_zar
         end

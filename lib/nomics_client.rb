@@ -7,8 +7,6 @@ class NomicsClient
   CURRENCIES_TICKER_PATH = "currencies/ticker".freeze
 
   def list(tickers, fields: nil, convert: "USD")
-    sleep 1
-
     uri = build_uri(CURRENCIES_TICKER_PATH, query_params: { "ids" => tickers.join(","), "convert" => convert })
     response = Net::HTTP.get(uri)
     response_json = JSON.parse(response)
