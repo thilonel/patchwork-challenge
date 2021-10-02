@@ -1,4 +1,35 @@
 RSpec.describe NomicsClient do
+  describe "#new" do
+    subject(:new) { described_class.new(api_host: api_host, api_key: api_key) }
+
+    context "when key and host are provided" do
+      let(:api_host) { ENV["NOMICS_API_HOST"] }
+      let(:api_key) { ENV["NOMICS_API_KEY"] }
+
+      it "returns the client instance" do
+        expect(new).to be_a NomicsClient
+      end
+
+      context "when they are empty strings" do
+        let(:api_host) { "" }
+        let(:api_key) { "" }
+
+        it "returns an error" do
+          expect { new }.to raise_error(ArgumentError)
+        end
+      end
+
+      context "when they are nil" do
+        let(:api_host) { nil }
+        let(:api_key) { nil }
+
+        it "returns an error" do
+          expect { new }.to raise_error(ArgumentError)
+        end
+      end
+    end
+  end
+
   shared_examples "rate limit handling" do
     it "returns a successful result even if the requests are sent right after each other" do
       action
