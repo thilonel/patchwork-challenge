@@ -1,3 +1,8 @@
+PATH
+  remote: .
+  specs:
+    nomics_client (0.0.1)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -21,7 +26,9 @@ PLATFORMS
   x86_64-darwin-20
 
 DEPENDENCIES
+  bundler
   dotenv (~> 2.7)
+  nomics_client!
   rspec (~> 3.10)
 
 RUBY VERSION

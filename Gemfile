@@ -2,8 +2,6 @@
 
 source "https://rubygems.org"
 
+gemspec
+
 ruby "3.0.2"
-
-gem "rspec", "~> 3.10"
-
-gem "dotenv", "~> 2.7"
