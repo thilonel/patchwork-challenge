@@ -35,10 +35,10 @@ class NomicsClient
   end
 
   def api_host
-    @api_host ||= "#{ENV["NOMICS_API_HOST"]}"
+    ENV["NOMICS_API_HOST"]
   end
 
   def api_key
-    @api_key ||= ENV["NOMICS_API_KEY"]
+    ENV["NOMICS_API_KEY"]
   end
 end
